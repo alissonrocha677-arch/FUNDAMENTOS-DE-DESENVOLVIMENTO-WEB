@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f7f2">
+  <title>Viva — seu espaço de saúde</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1d2924;
+      --muted: #828b85;
+      --green: #2f7657;
+      --green-dark: #245c43;
+      --green-soft: #e5eee7;
+      --paper: #f6f7f2;
+      --card: #fff;
+      --line: #e9ece6;
+      --orange: #e8a66b;
+      --shadow: 0 12px 34px rgba(30, 47, 37, .045);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: "DM Sans", sans-serif; font-size: 14px; }
+    button { color: inherit; font: inherit; cursor: pointer; }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar { width: 248px; flex: 0 0 248px; min-height: 100vh; background: #fff; border-right: 1px solid var(--line); padding: 28px 18px 22px; display: flex; flex-direction: column; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 12px; margin-bottom: 48px; }
+    .brand-mark { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; color: white; background: var(--green); }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .brand-name { font: 800 20px Manrope, sans-serif; letter-spacing: -1px; }
+    .brand-name span { color: var(--green); }
+    .nav-label { padding: 0 13px; margin: 0 0 12px; color: #a0a7a1; font-size: 10px; font-weight: 700; letter-spacing: 1.15px; text-transform: uppercase; }
+    .nav { display: grid; gap: 5px; }
+    .nav-button { border: 0; display: flex; align-items: center; gap: 13px; width: 100%; padding: 12px 13px; border-radius: 11px; background: transparent; color: #77817a; text-align: left; font-weight: 600; transition: .2s; }
+    .nav-button:hover { background: #f5f7f3; color: var(--ink); }
+    .nav-button.active { color: var(--green-dark); background: var(--green-soft); }
+    .nav-button svg { width: 18px; height: 18px; stroke-width: 1.8; }
+    .sidebar-bottom { margin-top: auto; }
+    .coach-card { padding: 16px; border-radius: 15px; color: white; background: var(--green-dark); overflow: hidden; position: relative; }
+    .coach-card:after { content: ""; width: 105px; height: 105px; border: 1px solid rgba(255,255,255,.15); position: absolute; border-radius: 50%; right: -44px; bottom: -53px; box-shadow: 0 0 0 14px rgba(255,255,255,.04), 0 0 0 28px rgba(255,255,255,.035); }
+    .coach-card p { margin: 0 0 7px; color: #c3d9ca; font-size: 11px; }
+    .coach-card strong { display: block; max-width: 150px; font: 700 16px/1.35 Manrope, sans-serif; }
+    .coach-card button { margin-top: 15px; padding: 8px 11px; border: 0; border-radius: 8px; background: #fff; color: var(--green-dark); font-size: 11px; font-weight: 700; }
+    .profile { display: flex; align-items: center; gap: 10px; padding: 19px 8px 0; margin-top: 20px; border-top: 1px solid var(--line); }
+    .avatar { display: grid; place-items: center; width: 35px; height: 35px; border-radius: 50%; color: #55725d; background: #e8ede7; font-weight: 700; }
+    .profile strong { display: block; font-size: 12px; }
+    .profile span { color: var(--muted); font-size: 10px; }
+    .main { flex: 1; min-width: 0; max-width: 1600px; margin: 0 auto; padding: 0 42px 44px; }
+    .topbar { height: 84px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+    .breadcrumb { color: var(--muted); font-size: 12px; }
+    .breadcrumb b { color: var(--ink); font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 18px; }
+    .date-chip { color: #737e76; font-size: 12px; }
+    .icon-button { position: relative; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 11px; background: white; }
+    .icon-button svg { width: 17px; height: 17px; }
+    .icon-button:after { content: ""; position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; border-radius: 50%; background: #e38f63; border: 1px solid #fff; }
+    .page { display: none; padding-top: 30px; animation: appear .24s ease; }
+    .page.active { display: block; }
+    @keyframes appear { from { opacity: .45; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .welcome { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+    .eyebrow { color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: 1.15px; text-transform: uppercase; }
+    h1 { margin: 7px 0 0; font: 700 27px Manrope, sans-serif; letter-spacing: -.9px; }
+    .welcome p { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+    .date-button { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: #657069; font-size: 11px; }
+    .date-button svg { width: 15px; height: 15px; }
+    .hero { display: grid; grid-template-columns: 1.18fr .82fr; min-height: 228px; overflow: hidden; border-radius: 19px; background: #e9efe7; margin-bottom: 22px; }
+    .hero-copy { padding: 29px 32px; position: relative; z-index: 1; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 6px; color: var(--green-dark); padding: 6px 9px; border: 1px solid rgba(47,118,87,.17); background: rgba(255,255,255,.48); border-radius: 20px; font-size: 10px; font-weight: 600; }
+    .hero-tag svg { width: 13px; height: 13px; }
+    .hero h2 { max-width: 360px; margin: 15px 0 8px; font: 700 25px/1.24 Manrope, sans-serif; letter-spacing: -.7px; }
+    .hero p { color: #68766d; margin: 0; font-size: 12px; }
+    .primary-button { display: inline-flex; align-items: center; gap: 9px; margin-top: 18px; padding: 11px 15px; border: 0; border-radius: 9px; color: white; background: var(--green); font-size: 11px; font-weight: 700; transition: .2s; }
+    .primary-button:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .primary-button svg { width: 15px; height: 15px; }
+    .hero-art { position: relative; min-height: 228px; overflow: hidden; background: linear-gradient(110deg, #e9efe7 0%, rgba(233,239,231,.28) 25%, transparent 50%), url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1000&q=85") center 48% / cover; }
+    .hero-art:after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #e9efe7 0%, transparent 38%), linear-gradient(0deg, rgba(28,55,39,.2), transparent 40%); }
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card, .panel, .workout-card { border: 1px solid var(--line); border-radius: 15px; background: var(--card); box-shadow: var(--shadow); }
+    .stat-card { min-height: 111px; padding: 15px 16px; }
+    .stat-top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 10px; font-weight: 500; }
+    .stat-icon { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 8px; color: var(--green); background: #eef4ee; }
+    .stat-icon svg { width: 15px; height: 15px; }
+    .stat-value { display: flex; align-items: baseline; gap: 5px; margin-top: 9px; font: 700 22px Manrope, sans-serif; letter-spacing: -.6px; }
+    .stat-value small { color: #879088; font: 500 10px "DM Sans", sans-serif; letter-spacing: 0; }
+    .stat-foot { color: #929b94; margin-top: 2px; font-size: 9px; }
+    .stat-foot em { color: var(--green); font-style: normal; font-weight: 700; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, .85fr); gap: 18px; }
+    .panel { padding: 19px; }
+    .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .panel-heading h3 { margin: 0; font: 700 14px Manrope, sans-serif; letter-spacing: -.2px; }
+    .panel-heading p { color: var(--muted); margin: 5px 0 0; font-size: 10px; }
+    .text-button { padding: 5px 0; border: 0; background: transparent; color: var(--green); font-size: 10px; font-weight: 700; }
+    .workout-list { display: grid; gap: 11px; }
+    .workout-card { display: flex; align-items: center; gap: 13px; padding: 10px; border-radius: 12px; box-shadow: none; }
+    .workout-thumb { width: 57px; height: 57px; flex: 0 0 57px; border-radius: 9px; background-color: #e8eee8; background-size: cover; background-position: center; }
+    .gym-fullbody { background-image: url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85"); }
+    .gym-legs { background-image: url("https://images.unsplash.com/photo-1517963628607-235ccdd5476c?auto=format&fit=crop&w=900&q=85"); }
+    .gym-upper { background-image: url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=85"); }
+    .mobility-image { background-image: url("https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=85"); }
+    .cardio-image { background-image: url("https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=85"); }
+    .workout-info { flex: 1; min-width: 0; }
+    .workout-info strong { display: block; font-size: 11px; }
+    .workout-info span { display: block; margin-top: 5px; color: var(--muted); font-size: 9px; }
+    .workout-meta { display: flex; gap: 9px; margin-top: 7px; color: #7d8981; font-size: 9px; }
+    .workout-meta span { display: flex; align-items: center; gap: 4px; }
+    .workout-meta svg { width: 12px; height: 12px; }
+    .round-play { flex: 0 0 32px; width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 50%; color: white; background: var(--green); }
+    .round-play svg { width: 14px; height: 14px; }
+    .side-stack { display: grid; align-content: start; gap: 16px; }
+    .water-card { padding: 18px; border-radius: 15px; background: #eaf1eb; }
+    .water-top { display: flex; align-items: center; justify-content: space-between; }
+    .water-top h3 { margin: 0; font: 700 13px Manrope, sans-serif; }
+    .water-top .stat-icon { color: #5482a0; background: #dce9ec; }
+    .water-count { margin-top: 13px; font: 700 23px Manrope, sans-serif; letter-spacing: -.7px; }
+    .water-count small { color: #7e8d84; font: 500 10px "DM Sans", sans-serif; letter-spacing: 0; }
+    .progress-track { height: 6px; overflow: hidden; margin-top: 10px; border-radius: 8px; background: rgba(72,113,83,.13); }
+    .progress-fill { width: 55%; height: 100%; border-radius: inherit; background: var(--green); transition: width .25s ease; }
+    .water-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: #7b887e; font-size: 9px; }
+    .add-water { display: flex; align-items: center; gap: 5px; padding: 7px 9px; border: 1px solid rgba(47,118,87,.16); border-radius: 8px; color: var(--green-dark); background: rgba(255,255,255,.7); font-size: 9px; font-weight: 700; }
+    .add-water svg { width: 12px; height: 12px; }
+    .habit-list { display: grid; gap: 11px; }
+    .habit { display: flex; align-items: center; gap: 10px; color: #59645d; font-size: 10px; }
+    .habit input { appearance: none; width: 16px; height: 16px; margin: 0; border: 1.5px solid #cbd4cc; border-radius: 5px; background: white; cursor: pointer; }
+    .habit input:checked { border-color: var(--green); background: var(--green); }
+    .habit input:checked:after { content: "✓"; display: block; color: white; text-align: center; line-height: 14px; font-size: 10px; }
+    .habit.done span { color: #98a099; text-decoration: line-through; }
+    .habits-summary { padding-top: 11px; margin-top: 13px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; }
+    .page-intro { margin: 4px 0 23px; }
+    .page-intro h1 { margin-top: 0; }
+    .page-intro p { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+    .program-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .program-card { overflow: hidden; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    .program-image { height: 145px; background-color: #e8eee8; background-position: center; background-size: cover; }
+    .program-body { padding: 16px; }
+    .program-tag { color: var(--green); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; }
+    .program-body h3 { margin: 7px 0 6px; font: 700 15px Manrope, sans-serif; }
+    .program-body p { min-height: 32px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .program-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 13px; color: #768178; font-size: 9px; }
+    .program-footer button { display: grid; place-items: center; width: 29px; height: 29px; border: 0; border-radius: 50%; color: white; background: var(--green); }
+    .program-footer svg { width: 13px; height: 13px; }
+    .ai-coach { margin-bottom: 17px; padding: 21px; border: 1px solid #dfe9df; border-radius: 16px; background: linear-gradient(130deg, #f1f6ef, #fff 72%); }
+    .ai-heading { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+    .ai-mark { width: 37px; height: 37px; display: grid; place-items: center; flex: 0 0 37px; border-radius: 11px; color: #fff; background: var(--green); font-size: 18px; }
+    .ai-heading h2 { margin: 1px 0 4px; font: 700 15px Manrope, sans-serif; }
+    .ai-heading p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .ai-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+    .ai-field label { display: block; margin-bottom: 6px; color: #667269; font-size: 10px; font-weight: 700; }
+    .ai-field select { width: 100%; min-height: 39px; padding: 0 10px; border: 1px solid #e3e8e1; border-radius: 9px; outline: none; color: var(--ink); background: white; font: 500 11px "DM Sans", sans-serif; }
+    .ai-field select:focus { border-color: #77a18a; box-shadow: 0 0 0 3px rgba(47,118,87,.1); }
+    .ai-submit { margin-top: 14px; }
+    .ai-submit:disabled { opacity: .65; cursor: wait; transform: none; }
+    .ai-result { display: none; margin-top: 16px; padding: 15px; border: 1px solid var(--line); border-radius: 11px; background: white; color: #455249; font-size: 11px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .ai-result.visible { display: block; }
+    .ai-result.error { border-color: #edd4ca; background: #fff9f6; color: #8d4936; }
+    .ai-status { margin: 11px 0 0; color: #8a6e3d; font-size: 9px; line-height: 1.5; }
+    .ai-status.ready { color: var(--green); }
+    .ai-note { margin: 12px 0 0; color: #8a938c; font-size: 9px; line-height: 1.6; }
+    .nutrition-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; }
+    .meal-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .meal-row:last-child { border-bottom: 0; }
+    .meal-icon { width: 38px; height: 38px; display: grid; place-items: center; flex: 0 0 38px; border-radius: 11px; background: #f2f4ec; font-size: 17px; }
+    .meal-row strong { display: block; font-size: 11px; }
+    .meal-row span { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .meal-kcal { margin-left: auto; color: #738078; white-space: nowrap; font-size: 10px; }
+    .calorie-number { margin: 9px 0 3px; font: 700 28px Manrope, sans-serif; }
+    .calorie-number small { color: var(--muted); font: 500 10px "DM Sans", sans-serif; }
+    .macro { margin-top: 17px; }
+    .macro-label { display: flex; justify-content: space-between; color: #68746c; font-size: 10px; }
+    .macro .progress-track { height: 5px; margin-top: 7px; background: #eef0ec; }
+    .macro .progress-fill { background: #d49a62; }
+    .macro:nth-of-type(3) .progress-fill { background: #779bbb; }
+    .macro:nth-of-type(4) .progress-fill { background: #83a779; }
+    .chart-panel { margin-top: 17px; }
+    .chart-wrap { height: 235px; margin-top: 10px; }
+    .chart-wrap svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-grid { stroke: #edf0ea; stroke-width: 1; }
+    .chart-line { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-area { fill: url(#chartFill); }
+    .chart-dot { fill: white; stroke: var(--green); stroke-width: 2.5; }
+    .chart-label { fill: #929a94; font: 10px "DM Sans", sans-serif; }
+    .goal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .goal-card { padding: 19px; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    .goal-card span { color: var(--muted); font-size: 10px; }
+    .goal-card strong { display: block; margin-top: 9px; font: 700 22px Manrope, sans-serif; }
+    .goal-card small { color: var(--green); font-size: 10px; }
+    .disclaimer { margin-top: 20px; color: #8a938c; font-size: 10px; line-height: 1.6; }
+    .guide-dialog { width: min(520px, calc(100% - 28px)); max-height: min(760px, calc(100% - 32px)); padding: 0; overflow: auto; border: 1px solid var(--line); border-radius: 20px; color: var(--ink); background: var(--paper); box-shadow: 0 24px 80px rgba(19,35,25,.25); }
+    .guide-dialog::backdrop { background: rgba(22,33,26,.55); backdrop-filter: blur(4px); }
+    .guide-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 22px 24px 16px; border-bottom: 1px solid var(--line); background: white; }
+    .guide-head h2 { margin: 5px 0 0; font: 700 19px Manrope, sans-serif; letter-spacing: -.5px; }
+    .guide-close { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: white; font-size: 20px; line-height: 1; }
+    .guide-close:hover { background: var(--paper); }
+    .guide-content { padding: 22px 24px 24px; }
+    .guide-status { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
+    .guide-progress { height: 5px; margin: 10px 0 22px; border-radius: 8px; background: #e7ebe5; overflow: hidden; }
+    .guide-progress div { width: 0; height: 100%; border-radius: inherit; background: var(--green); transition: width .2s ease; }
+    .guide-step-icon { display: grid; place-items: center; width: 47px; height: 47px; border-radius: 14px; background: var(--green-soft); color: var(--green); font-size: 22px; }
+    .guide-content h3 { margin: 14px 0 7px; font: 700 20px Manrope, sans-serif; letter-spacing: -.5px; }
+    .guide-description { color: #68746c; font-size: 12px; line-height: 1.7; }
+    .guide-cues { display: grid; gap: 9px; margin-top: 17px; }
+    .guide-cue { display: flex; gap: 9px; align-items: flex-start; padding: 11px 12px; border-radius: 10px; background: white; color: #5e6a62; font-size: 11px; line-height: 1.5; }
+    .guide-cue b { color: var(--green); }
+    .guide-tip { padding: 12px 13px; margin-top: 13px; border-radius: 10px; background: #f0eee6; color: #73694f; font-size: 10px; line-height: 1.6; }
+    .guide-tip strong { color: #675a3f; }
+    .guide-safety { margin: 14px 0 0; color: #858f87; font-size: 9px; line-height: 1.6; }
+    .guide-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 21px; }
+    .secondary-button { padding: 10px 14px; border: 1px solid var(--line); border-radius: 9px; color: #657069; background: white; font-size: 11px; font-weight: 700; }
+    .secondary-button:disabled { opacity: .45; cursor: not-allowed; }
+    .toast { position: fixed; bottom: 24px; left: 50%; z-index: 5; transform: translate(-50%, 16px); opacity: 0; padding: 12px 17px; border-radius: 11px; color: white; background: #233b2e; box-shadow: 0 8px 24px rgba(0,0,0,.15); font-size: 11px; pointer-events: none; transition: .25s; }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    @media (max-width: 1050px) {
+      .sidebar { width: 210px; flex-basis: 210px; }
+      .main { padding-right: 26px; padding-left: 26px; }
+      .content-grid { grid-template-columns: 1.2fr .8fr; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 760px) {
+      .app { display: block; padding-bottom: 68px; }
+      .sidebar { position: fixed; z-index: 4; left: 0; right: 0; bottom: 0; top: auto; width: 100%; min-height: 0; height: 64px; padding: 5px 10px; border-top: 1px solid var(--line); border-right: 0; }
+      .brand, .nav-label, .sidebar-bottom { display: none; }
+      .nav { height: 100%; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+      .nav-button { justify-content: center; flex-direction: column; gap: 3px; padding: 5px 2px; border-radius: 9px; font-size: 9px; }
+      .nav-button svg { width: 18px; height: 18px; }
+      .main { padding: 0 16px 30px; }
+      .topbar { height: 58px; }
+      .date-chip { display: none; }
+      .page { padding-top: 21px; }
+      .welcome { align-items: flex-start; }
+      h1 { font-size: 23px; }
+      .date-button { padding: 8px; font-size: 0; }
+      .date-button svg { width: 17px; height: 17px; }
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-copy { padding: 23px; }
+      .hero h2 { max-width: 280px; font-size: 22px; }
+      .hero-art { min-height: 135px; background-position: center 42%; }
+      .hero-art:after { background: linear-gradient(0deg, rgba(28,55,39,.14), transparent 75%); }
+      .content-grid, .nutrition-layout { grid-template-columns: 1fr; }
+      .ai-fields { grid-template-columns: 1fr; }
+      .ai-coach { padding: 17px; }
+      .program-grid { grid-template-columns: 1fr; }
+      .program-image { height: 170px; }
+      .goal-grid { grid-template-columns: 1fr; gap: 10px; }
+      .goal-card { padding: 15px; }
+      .goal-card strong { display: inline; margin: 0 9px; }
+      .guide-head { padding: 18px 18px 14px; }
+      .guide-content { padding: 18px; }
+    }
+    @media (max-width: 400px) {
+      .main { padding-right: 12px; padding-left: 12px; }
+      .stat-grid { gap: 9px; }
+      .stat-card { padding: 12px; }
+      .hero-copy { padding: 20px; }
+      .workout-card { gap: 9px; padding: 8px; }
+      .workout-thumb { width: 49px; height: 52px; flex-basis: 49px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12h3m12 0h3M6 9v6m12-6v6M9 7v10m6-10v10M9 12h6"/></svg></div>
+          <div class="brand-name">viva<span>.</span></div>
+        </div>
+        <p class="nav-label">Seu espaço</p>
+        <nav class="nav" aria-label="Navegação principal">
+          <button class="nav-button active" data-page="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>Visão geral</button>
+          <button class="nav-button" data-page="treinos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6.5 6.5 11 11m-14-4 3-3m8-8 3-3M4 20l3-3m10-10 3-3M2 14l4-4m6-6 4-4m-2 18 4-4m-6 6 4-4"/></svg>Treinos</button>
+          <button class="nav-button" data-page="alimentacao"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18m10-18v18m0-18c3 2 3 8 0 10"/></svg>Alimentação</button>
+          <button class="nav-button" data-page="progresso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18M7 14l4-4 4 3 6-7"/></svg>Meu progresso</button>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="coach-card">
+          <p>UM PASSO DE CADA VEZ</p>
+          <strong>Consistência é o seu superpoder.</strong>
+          <button type="button" id="coachButton">Ver minha semana</button>
+        </div>
+        <div class="profile">
+          <div class="avatar">MA</div>
+          <div><strong>Marina Alves</strong><span>Plano de bem-estar</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb">Seu espaço <span> / </span> <b id="crumb">Visão geral</b></div>
+        <div class="top-actions">
+          <span class="date-chip" id="todayDate"></span>
+          <button class="icon-button" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12h4"/></svg></button>
+          <div class="avatar">MA</div>
+        </div>
+      </header>
+
+      <section class="page active" id="page-inicio">
+        <div class="welcome">
+          <div><div class="eyebrow">UM DIA DE CADA VEZ</div><h1>Bom dia, Marina <span aria-hidden="true">☀️</span></h1><p>Pequenos passos também levam longe. Como você está se sentindo?</p></div>
+          <button class="date-button" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>Esta semana</span></button>
+        </div>
+
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="hero-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18m9-9H3"/><circle cx="12" cy="12" r="9"/></svg> SEU TREINO DE HOJE</div>
+            <h2>Seu treino de academia começa aqui.</h2>
+            <p>Musculação • Corpo todo • 40 min • Iniciante</p>
+            <button class="primary-button start-workout" data-name="Musculação corpo todo A"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg> Começar treino</button>
+          </div>
+          <div class="hero-art" role="img" aria-label="Pessoa treinando em uma academia"></div>
+        </section>
+
+        <section class="stat-grid" aria-label="Resumo de hoje">
+          <article class="stat-card"><div class="stat-top"><span>Atividade</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5 17.5 17.5m-14-4 3-3m8-8 3-3M4 20l3-3m10-10 3-3"/></svg></span></div><div class="stat-value">32 <small>min</small></div><div class="stat-foot"><em>+12 min</em> em movimento hoje</div></article>
+          <article class="stat-card"><div class="stat-top"><span>Passos</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 5c0 1.1-.9 2-2 2S9 6.1 9 5s.9-2 2-2 2 .9 2 2Zm-5.5 8.5 2-3 3-1 2.5 2 2 1m-9.5 1-2 5m7-7 1 6m-5-9-3-1"/></svg></span></div><div class="stat-value">6.240 <small>passos</small></div><div class="stat-foot">Meta diária: <em>8.000</em></div></article>
+          <article class="stat-card"><div class="stat-top"><span>Treinos na semana</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6.5 6.5 11 11m-14-4 3-3m8-8 3-3M4 20l3-3m10-10 3-3"/></svg></span></div><div class="stat-value">2 <small>de 4</small></div><div class="stat-foot"><em>Metade do caminho!</em></div></article>
+          <article class="stat-card"><div class="stat-top"><span>Seu ritmo</span><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg></span></div><div class="stat-value">Muito bom <small>↗</small></div><div class="stat-foot"><em>3 dias</em> cuidando de você</div></article>
+        </section>
+
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-heading"><div><h3>Seu plano de hoje</h3><p>Uma rotina possível, no seu ritmo.</p></div><button class="text-button" data-go="treinos">Ver todos</button></div>
+            <div class="workout-list">
+              <article class="workout-card"><div class="workout-thumb gym-fullbody" role="img" aria-label="Equipamentos de musculação para treino de corpo todo"></div><div class="workout-info"><strong>Musculação corpo todo A</strong><span>Máquinas da academia, com execução guiada.</span><div class="workout-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>40 min</span><span>•</span><span>Iniciante</span></div></div><button class="round-play start-workout" data-name="Musculação corpo todo A" aria-label="Começar treino"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button></article>
+              <article class="workout-card"><div class="workout-thumb mobility-image" role="img" aria-label="Pessoa praticando alongamento"></div><div class="workout-info"><strong>Mobilidade e alongamento</strong><span>Desacelere e movimente o corpo.</span><div class="workout-meta"><span>◷ 15 min</span><span>•</span><span>Leve</span></div></div><button class="round-play start-workout" data-name="Mobilidade e alongamento" aria-label="Começar treino"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button></article>
+            </div>
+          </section>
+          <div class="side-stack">
+            <section class="water-card">
+              <div class="water-top"><h3>Hidratação</h3><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22a7 7 0 0 0 7-7c0-4-7-13-7-13S5 11 5 15a7 7 0 0 0 7 7Z"/></svg></span></div>
+              <div class="water-count"><span id="waterCount">1.2</span> <small>/ 2.0 L</small></div>
+              <div class="progress-track"><div class="progress-fill" id="waterProgress"></div></div>
+              <div class="water-bottom"><span>Um gole de cada vez 💧</span><button class="add-water" id="addWater"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg> 250 ml</button></div>
+            </section>
+            <section class="panel">
+              <div class="panel-heading"><div><h3>Hábitos de hoje</h3><p>O que você já conseguiu fazer?</p></div></div>
+              <div class="habit-list">
+                <label class="habit"><input type="checkbox" data-habit="breakfast"><span>Tomar um café da manhã</span></label>
+                <label class="habit"><input type="checkbox" data-habit="walk"><span>Fazer uma pausa para caminhar</span></label>
+                <label class="habit"><input type="checkbox" data-habit="sleep"><span>Preparar-se para dormir cedo</span></label>
+              </div>
+              <div class="habits-summary" id="habitSummary">0 de 3 hábitos concluídos</div>
+            </section>
+          </div>
+        </div>
+        <p class="disclaimer">Cuide-se com gentileza: suas metas são pessoais. Ajuste exercícios e alimentação às suas necessidades e converse com um profissional de saúde antes de iniciar uma nova rotina.</p>
+      </section>
+
+      <section class="page" id="page-treinos">
+        <div class="page-intro"><div class="eyebrow">MUSCULAÇÃO E MOVIMENTO</div><h1>Treinos para academia</h1><p>Rotinas com máquinas e pesos, explicadas passo a passo. Escolha um treino e ajuste as cargas com orientação da equipe da academia.</p></div>
+        <section class="ai-coach" aria-labelledby="aiCoachTitle">
+          <div class="ai-heading">
+            <div class="ai-mark" aria-hidden="true">✦</div>
+            <div><h2 id="aiCoachTitle">Monte um plano com IA</h2><p>Personalize uma sugestão de treino de academia de acordo com sua meta e rotina.</p></div>
+          </div>
+          <form id="aiPlanForm">
+            <div class="ai-fields">
+              <div class="ai-field"><label for="aiGoal">Seu objetivo</label><select id="aiGoal" name="goal"><option value="general_fitness">Melhorar a saúde e o condicionamento</option><option value="strength">Ganhar força e massa muscular</option><option value="weight_loss">Apoiar a perda de peso com hábitos sustentáveis</option></select></div>
+              <div class="ai-field"><label for="aiExperience">Experiência com musculação</label><select id="aiExperience" name="experience"><option value="beginner">Iniciante</option><option value="intermediate">Intermediária</option><option value="advanced">Avançada</option></select></div>
+              <div class="ai-field"><label for="aiDays">Dias disponíveis por semana</label><select id="aiDays" name="daysPerWeek"><option value="2">2 dias</option><option value="3" selected>3 dias</option><option value="4">4 dias</option><option value="5">5 dias</option></select></div>
+            </div>
+            <button class="primary-button ai-submit" id="aiSubmit" type="submit"><span aria-hidden="true">✦</span> Gerar sugestão com IA</button>
+          </form>
+          <div class="ai-result" id="aiResult" role="status" aria-live="polite"></div>
+          <p class="ai-status" id="aiStatus" role="status" aria-live="polite">Verificando conexão com a IA...</p>
+          <p class="ai-note">A IA pode cometer erros. Esta sugestão é informativa, não substitui avaliação profissional; confira os aparelhos e a técnica com a equipe da academia. Não envie dados pessoais ou informações médicas.</p>
+        </section>
+        <div class="program-grid">
+          <article class="program-card"><div class="program-image gym-fullbody" role="img" aria-label="Equipamentos de academia para treino de musculação de corpo todo"></div><div class="program-body"><span class="program-tag">Academia · Iniciante</span><h3>Musculação corpo todo A</h3><p>Uma sessão equilibrada em máquinas para conhecer os movimentos básicos.</p><div class="program-footer"><span>◷ 40 min &nbsp; · &nbsp; 5 aparelhos</span><button class="start-workout" data-name="Musculação corpo todo A" aria-label="Começar treino"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button></div></div></article>
+          <article class="program-card"><div class="program-image gym-legs" role="img" aria-label="Pesos de academia e equipamento para treino de pernas"></div><div class="program-body"><span class="program-tag">Academia · Pernas</span><h3>Treino B · Pernas e glúteos</h3><p>Leg press, cadeira extensora e flexora com foco em controle e boa postura.</p><div class="program-footer"><span>◷ 40 min &nbsp; · &nbsp; 4 aparelhos</span><button class="start-workout" data-name="Treino B · Pernas e glúteos" aria-label="Começar treino"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button></div></div></article>
+          <article class="program-card"><div class="program-image gym-upper" role="img" aria-label="Pessoa treinando musculação para peito e costas"></div><div class="program-body"><span class="program-tag">Academia · Parte superior</span><h3>Treino C · Peito e costas</h3><p>Exercícios em máquinas para trabalhar peito, costas e ombros com segurança.</p><div class="program-footer"><span>◷ 40 min &nbsp; · &nbsp; 4 aparelhos</span><button class="start-workout" data-name="Treino C · Peito e costas" aria-label="Começar treino"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button></div></div></article>
+          <article class="program-card"><div class="program-image mobility-image" role="img" aria-label="Pessoa praticando mobilidade e alongamento"></div><div class="program-body"><span class="program-tag">Mobilidade · Leve</span><h3>Alongue e respire</h3><p>Uma pausa gentil para soltar o corpo e recuperar a disposição.</p><div class="program-footer"><span>◷ 15 min &nbsp; · &nbsp; 5 movimentos</span><button class="start-workout" data-name="Alongue e respire" aria-label="Começar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button></div></div></article>
+          <article class="program-card"><div class="program-image cardio-image" role="img" aria-label="Pessoas correndo em atividade cardiovascular"></div><div class="program-body"><span class="program-tag">Cardio · Moderado</span><h3>Energia em movimento</h3><p>Atividade aeróbica para se movimentar e se sentir bem.</p><div class="program-footer"><span>◷ 25 min &nbsp; · &nbsp; Sem equipamento</span><button class="start-workout" data-name="Energia em movimento" aria-label="Começar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button></div></div></article>
+        </div>
+        <p class="disclaimer">Sugestão geral para iniciantes: intercale os treinos de musculação e deixe um dia de recuperação entre sessões que trabalhem os mesmos músculos. Comece com carga leve que permita executar o movimento com controle; peça à equipe da academia para ajustar o aparelho e conferir sua postura. Interrompa se sentir dor, tontura ou mal-estar. Esta rotina não substitui avaliação de profissional de educação física ou orientação médica.</p>
+      </section>
+
+      <section class="page" id="page-alimentacao">
+        <div class="page-intro"><div class="eyebrow">NUTRIÇÃO COM EQUILÍBRIO</div><h1>Alimentação consciente</h1><p>Mais atenção ao que te faz bem — sem regras rígidas ou cobranças.</p></div>
+        <div class="nutrition-layout">
+          <section class="panel"><div class="panel-heading"><div><h3>Ideias para o seu dia</h3><p>Inspirações equilibradas para suas refeições.</p></div><span class="stat-icon">🍽</span></div>
+            <div class="meal-row"><div class="meal-icon">🥣</div><div><strong>Café da manhã</strong><span>Iogurte, frutas e aveia</span></div><div class="meal-kcal">Uma boa<br>combinação</div></div>
+            <div class="meal-row"><div class="meal-icon">🥗</div><div><strong>Almoço</strong><span>Arroz, feijão, legumes e proteína</span></div><div class="meal-kcal">Prato<br>colorido</div></div>
+            <div class="meal-row"><div class="meal-icon">🍎</div><div><strong>Lanche</strong><span>Fruta da estação e castanhas</span></div><div class="meal-kcal">Pausa<br>gostosa</div></div>
+            <div class="meal-row"><div class="meal-icon">🍲</div><div><strong>Jantar</strong><span>Sopa de legumes ou refeição caseira</span></div><div class="meal-kcal">A seu<br>gosto</div></div>
+          </section>
+          <section class="panel"><div class="panel-heading"><div><h3>Um prato equilibrado</h3><p>Uma referência visual, não uma regra.</p></div></div>
+            <div style="width:160px;height:160px;margin:17px auto 20px;border-radius:50%;background:conic-gradient(#84a979 0 50%,#e6bf83 50% 75%,#c77d62 75% 100%);position:relative">
+              <div style="position:absolute;inset:5px;border:2px solid white;border-radius:50%;pointer-events:none"></div>
+            </div>
+            <div class="macro"><div class="macro-label"><span>Vegetais e frutas</span><span>½ do prato</span></div><div class="progress-track"><div class="progress-fill" style="width:50%"></div></div></div>
+            <div class="macro"><div class="macro-label"><span>Grãos e tubérculos</span><span>¼ do prato</span></div><div class="progress-track"><div class="progress-fill" style="width:25%"></div></div></div>
+            <div class="macro"><div class="macro-label"><span>Proteínas</span><span>¼ do prato</span></div><div class="progress-track"><div class="progress-fill" style="width:25%"></div></div></div>
+          </section>
+        </div>
+        <p class="disclaimer">Estas ideias são gerais e não substituem orientação de nutricionista. Necessidades variam de pessoa para pessoa; respeite sua fome, cultura, preferências e condições de saúde.</p>
+      </section>
+
+      <section class="page" id="page-progresso">
+        <div class="page-intro"><div class="eyebrow">CADA PASSO MERECE SER CELEBRADO</div><h1>Seu progresso</h1><p>Saúde também é energia, constância e bem-estar — não só números.</p></div>
+        <div class="goal-grid">
+          <article class="goal-card"><span>Atividade nesta semana</span><strong>2h 15min</strong><small>↑ 25 min vs. semana passada</small></article>
+          <article class="goal-card"><span>Treinos concluídos</span><strong>2 de 4</strong><small>Você está no caminho</small></article>
+          <article class="goal-card"><span>Hábito em destaque</span><strong>3 dias</strong><small>Se hidratando com constância</small></article>
+        </div>
+        <section class="panel chart-panel"><div class="panel-heading"><div><h3>Minutos em movimento</h3><p>Um panorama gentil da sua semana</p></div><button class="date-button">Últimos 7 dias</button></div>
+          <div class="chart-wrap"><svg viewBox="0 0 700 230" preserveAspectRatio="none" role="img" aria-label="Gráfico de atividade física nos últimos sete dias">
+            <defs><linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#6b9b7c" stop-opacity=".2"/><stop offset="100%" stop-color="#6b9b7c" stop-opacity="0"/></linearGradient></defs>
+            <line class="chart-grid" x1="40" y1="30" x2="690" y2="30"/><line class="chart-grid" x1="40" y1="80" x2="690" y2="80"/><line class="chart-grid" x1="40" y1="130" x2="690" y2="130"/><line class="chart-grid" x1="40" y1="180" x2="690" y2="180"/>
+            <text class="chart-label" x="0" y="34">60</text><text class="chart-label" x="0" y="84">40</text><text class="chart-label" x="0" y="134">20</text><text class="chart-label" x="9" y="184">0</text>
+            <path class="chart-area" d="M50 128 L155 96 L260 112 L365 65 L470 88 L575 45 L680 80 L680 180 L50 180 Z"/>
+            <path class="chart-line" d="M50 128 L155 96 L260 112 L365 65 L470 88 L575 45 L680 80"/>
+            <circle class="chart-dot" cx="50" cy="128" r="4"/><circle class="chart-dot" cx="155" cy="96" r="4"/><circle class="chart-dot" cx="260" cy="112" r="4"/><circle class="chart-dot" cx="365" cy="65" r="4"/><circle class="chart-dot" cx="470" cy="88" r="4"/><circle class="chart-dot" cx="575" cy="45" r="4"/><circle class="chart-dot" cx="680" cy="80" r="4"/>
+            <text class="chart-label" x="40" y="211">Qui</text><text class="chart-label" x="145" y="211">Sex</text><text class="chart-label" x="250" y="211">Sáb</text><text class="chart-label" x="355" y="211">Dom</text><text class="chart-label" x="460" y="211">Seg</text><text class="chart-label" x="565" y="211">Ter</text><text class="chart-label" x="670" y="211">Qua</text>
+          </svg></div>
+        </section>
+        <p class="disclaimer">Acompanhe tendências com gentileza, sem comparar seu progresso com o de outras pessoas. Medidas e metas não definem seu valor ou sua saúde por si só.</p>
+      </section>
+    </main>
+  </div>
+  <dialog class="guide-dialog" id="guideDialog" aria-labelledby="guideTitle">
+    <div class="guide-head">
+      <div><div class="eyebrow">GUIA DE TREINO · PASSO A PASSO</div><h2 id="guideTitle">Seu treino</h2></div>
+      <button class="guide-close" id="closeGuide" type="button" aria-label="Fechar guia">×</button>
+    </div>
+    <div class="guide-content">
+      <div class="guide-status"><span id="guidePhase">Preparação</span><span id="guideCounter"></span></div>
+      <div class="guide-progress" aria-hidden="true"><div id="guideProgress"></div></div>
+      <div class="guide-step-icon" id="guideIcon" aria-hidden="true">🌿</div>
+      <h3 id="guideStepTitle"></h3>
+      <div class="guide-description" id="guideDescription"></div>
+      <div class="guide-cues" id="guideCues"></div>
+      <div class="guide-tip" id="guideTip"></div>
+      <p class="guide-safety">Faça os movimentos dentro do seu conforto. Pare se sentir dor, tontura ou falta de ar fora do esperado; se precisar, peça orientação a um profissional.</p>
+      <div class="guide-actions">
+        <button class="secondary-button" id="previousStep" type="button">Voltar</button>
+        <button class="primary-button" id="nextStep" type="button" style="margin-top:0">Próximo passo</button>
+      </div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    const storageKey = "viva-wellness-state";
+    const defaults = { water: 1.2, habits: { breakfast: false, walk: false, sleep: false } };
+    let saved = {};
+    try {
+      saved = JSON.parse(localStorage.getItem(storageKey) || "{}") || {};
+    } catch (error) {
+      console.warn("Não foi possível carregar os dados salvos.", error);
+    }
+    const state = {
+      water: Number.isFinite(saved.water) ? saved.water : defaults.water,
+      habits: { ...defaults.habits, ...(saved.habits || {}) }
+    };
+    const pages = ["inicio", "treinos", "alimentacao", "progresso"];
+    const labels = { inicio: "Visão geral", treinos: "Treinos", alimentacao: "Alimentação", progresso: "Meu progresso" };
+    const toast = document.getElementById("toast");
+    const guideDialog = document.getElementById("guideDialog");
+    const workoutGuides = {
+      strength: {
+        title: "Musculação corpo todo A",
+        steps: [
+          { phase: "Preparação", icon: "🌿", title: "Aquecimento na esteira ou bicicleta", duration: "5 minutos", description: "Use esteira ou bicicleta ergométrica em ritmo leve, suficiente para aquecer sem ficar ofegante. Antes de começar, peça à equipe da academia para mostrar os ajustes dos aparelhos.", cues: ["Ajuste velocidade e resistência para um nível confortável.", "Faça uma série bem leve de familiarização no primeiro aparelho."], tip: "Não precisa correr nem pedalar forte: o aquecimento deve preparar, não cansar." },
+          { phase: "Exercício 1", icon: "🦵", title: "Leg press", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Ajuste o banco para que as costas fiquem apoiadas. Coloque os pés na plataforma na largura do quadril. Destrave conforme a instrução do aparelho, desça a plataforma devagar até onde seja confortável e empurre sem travar os joelhos.", cues: ["Mantenha quadril e costas apoiados no encosto.", "Use uma carga leve; joelhos acompanham a direção dos pés."], tip: "Peça à equipe para ensinar como ajustar o banco, travas e carga. Se sentir dor no joelho ou nas costas, pare." },
+          { phase: "Exercício 2", icon: "💪", title: "Chest press (máquina de peito)", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Ajuste o banco para que as alças fiquem aproximadamente na altura do meio do peito. Segure as alças, empurre à frente sem travar os cotovelos e retorne lentamente.", cues: ["Mantenha as costas apoiadas e os ombros relaxados.", "Controle a volta; não deixe os pesos baterem."], tip: "Comece com o menor peso que permita fazer as repetições com controle e sem prender a respiração." },
+          { phase: "Exercício 3", icon: "↩️", title: "Remada sentada na máquina", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Sente-se com os pés apoiados e coluna confortável. Puxe as alças em direção ao tronco, levando os cotovelos para trás, e estenda os braços devagar sem arredondar as costas.", cues: ["Mantenha o peito aberto e o tronco estável.", "Evite balançar o corpo para puxar a carga."], tip: "Peça ajuda para identificar a regulagem correta e manter a coluna em posição confortável." },
+          { phase: "Exercício 4", icon: "🦿", title: "Mesa flexora", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Ajuste o rolo acolchoado próximo aos tornozelos e alinhe o joelho ao eixo indicado no aparelho. Flexione as pernas devagar e retorne controlando o peso.", cues: ["Mantenha o quadril apoiado no banco.", "Use amplitude confortável e sem impulsos."], tip: "A posição do rolo varia por aparelho: confira o ajuste com a equipe antes de iniciar." },
+          { phase: "Exercício 5", icon: "⬇️", title: "Puxada frontal", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Sente-se com as coxas apoiadas sob o suporte. Segure a barra um pouco além da largura dos ombros e puxe à frente, em direção à parte alta do peito. Retorne com controle.", cues: ["Puxe a barra pela frente, nunca atrás da nuca.", "Mantenha o tronco estável e os ombros longe das orelhas."], tip: "Use pouca carga no início e peça a um profissional para demonstrar a pegada e os ajustes." },
+          { phase: "Finalização", icon: "🌬️", title: "Desacelere e registre como se sentiu", duration: "3 minutos", description: "Caminhe devagar ou pedale leve. Respire normalmente e observe se sentiu algum desconforto.", cues: ["Guarde os pesos e deixe o aparelho organizado.", "Anote cargas que conseguiu controlar para conversar com o profissional que acompanha você."], tip: "Não aumente a carga se a técnica ainda não estiver confortável. A execução vem antes do peso." }
+        ]
+      },
+      gymLower: {
+        title: "Treino B · Pernas e glúteos",
+        steps: [
+          { phase: "Preparação", icon: "🌿", title: "Aqueça na bicicleta", duration: "5 minutos", description: "Pedale leve e ajuste o banco para que o joelho fique ligeiramente flexionado quando o pedal estiver mais baixo.", cues: ["Mantenha um ritmo que permita conversar.", "Peça à equipe para conferir o ajuste do banco."], tip: "Use resistência baixa para aquecer, sem fadigar as pernas." },
+          { phase: "Exercício 1", icon: "🦵", title: "Leg press", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Apoie costas e quadril no banco. Posicione os pés na largura do quadril, desça a plataforma até uma amplitude confortável e empurre sem travar os joelhos.", cues: ["Joelhos acompanham a direção dos pés.", "Não deixe o quadril sair do encosto."], tip: "Peça demonstração das travas e comece com carga leve." },
+          { phase: "Exercício 2", icon: "🪑", title: "Cadeira extensora", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Ajuste o encosto e posicione o rolo acolchoado acima dos tornozelos. Estenda os joelhos sem dar impulso e volte lentamente.", cues: ["Alinhe o joelho ao eixo do aparelho.", "Use movimento confortável, sem chutar o peso."], tip: "Os ajustes variam entre aparelhos; peça ajuda para posicionar o rolo corretamente." },
+          { phase: "Exercício 3", icon: "🦿", title: "Mesa flexora", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Alinhe os joelhos ao eixo da máquina e posicione o rolo próximo aos tornozelos. Flexione as pernas de forma controlada e retorne devagar.", cues: ["Mantenha o quadril apoiado.", "Não use balanço para mover a carga."], tip: "Reduza a amplitude ou a carga se sentir desconforto." },
+          { phase: "Exercício 4", icon: "🍑", title: "Abdução de quadril na máquina", duration: "2 séries de 10–12 repetições · descanse 60 s", description: "Sente-se com as costas apoiadas e ajuste as almofadas para a parte externa das pernas. Afaste os joelhos suavemente e retorne devagar.", cues: ["Mantenha o tronco estável.", "Faça movimentos controlados sem bater os pesos."], tip: "Ajuste a abertura inicial para uma posição confortável e peça orientação à equipe." },
+          { phase: "Finalização", icon: "🌬️", title: "Desacelere", duration: "3 minutos", description: "Caminhe devagar e espere a respiração voltar ao normal. Alongue suavemente apenas se for confortável.", cues: ["Beba água se estiver com sede.", "Observe como joelhos e quadris se sentem."], tip: "Interrompa se surgir dor, tontura ou mal-estar." }
+        ]
+      },
+      gymUpper: {
+        title: "Treino C · Peito e costas",
+        steps: [
+          { phase: "Preparação", icon: "🌿", title: "Aqueça e ajuste os aparelhos", duration: "5 minutos", description: "Faça alguns minutos de bicicleta ou caminhada leve. Peça à equipe para mostrar como regular banco, assento e carga antes de cada aparelho.", cues: ["Movimente suavemente ombros e braços.", "Comece com uma série leve para conhecer o movimento."], tip: "Nunca altere pinos ou ajustes de um aparelho sem entender como ele funciona." },
+          { phase: "Exercício 1", icon: "💪", title: "Chest press", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Ajuste as alças à altura do peito. Empurre à frente com controle e retorne lentamente, mantendo as costas apoiadas.", cues: ["Evite travar os cotovelos.", "Mantenha ombros relaxados e respiração fluida."], tip: "Escolha uma carga leve que permita executar todas as repetições com boa técnica." },
+          { phase: "Exercício 2", icon: "↩️", title: "Remada sentada", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Com os pés apoiados, puxe as alças em direção ao tronco e leve os cotovelos para trás. Retorne sem arredondar as costas.", cues: ["Mantenha o peito aberto e o tronco estável.", "Não balance para mover o peso."], tip: "Peça ajuda para ajustar a distância do assento e escolher a pegada." },
+          { phase: "Exercício 3", icon: "⬇️", title: "Puxada frontal", duration: "2 séries de 8–12 repetições · descanse 60–90 s", description: "Apoie as coxas sob o suporte. Puxe a barra pela frente em direção à parte alta do peito e deixe-a subir devagar.", cues: ["Não puxe a barra atrás da nuca.", "Evite inclinar o tronco para ganhar impulso."], tip: "Se os ombros incomodarem, pare e peça orientação para ajustar o movimento." },
+          { phase: "Exercício 4", icon: "🪽", title: "Voador inverso na máquina", duration: "2 séries de 8–12 repetições · descanse 60 s", description: "Ajuste o banco e as alças conforme demonstração da equipe. Com os braços à frente, abra-os suavemente para os lados e retorne com controle.", cues: ["Use carga baixa e mantenha os ombros relaxados.", "Não force a abertura além da sua mobilidade."], tip: "A posição muda conforme o aparelho; peça uma demonstração antes da primeira série." },
+          { phase: "Finalização", icon: "🌬️", title: "Desacelere", duration: "3 minutos", description: "Caminhe leve, respire com calma e perceba como braços, ombros e costas estão se sentindo.", cues: ["Guarde os acessórios usados.", "Anote dúvidas para conversar com a equipe da academia."], tip: "Se sentir dor ou mal-estar, interrompa o treino e peça ajuda." }
+        ]
+      },
+      mobility: {
+        title: "Mobilidade e alongamento",
+        steps: [
+          { phase: "Preparação", icon: "🌿", title: "Encontre uma posição confortável", duration: "1 minuto", description: "Fique em pé ou sente-se com apoio. Faça algumas respirações tranquilas e solte os ombros.", cues: ["Escolha um espaço estável e sem obstáculos.", "Alongamento deve trazer sensação suave, nunca dor."], tip: "Faça tudo sentado se ficar em pé não for confortável." },
+          { phase: "Movimento 1", icon: "🙆", title: "Solte os ombros", duration: "8 círculos para cada lado", description: "Eleve suavemente os ombros, leve-os para trás e para baixo, desenhando círculos lentos.", cues: ["Mantenha o pescoço relaxado.", "Faça círculos pequenos e respire normalmente."], tip: "Diminua o tamanho dos círculos se sentir tensão." },
+          { phase: "Movimento 2", icon: "🐈", title: "Mobilize a coluna", duration: "6 repetições", description: "Em quatro apoios ou sentado, arredonde suavemente as costas e depois volte a uma posição neutra.", cues: ["Acompanhe o movimento com a respiração.", "Não force o pescoço nem vá além do confortável."], tip: "A versão sentada funciona bem: apoie as mãos nas coxas e movimente a coluna devagar." },
+          { phase: "Movimento 3", icon: "🦵", title: "Alongue a parte de trás da perna", duration: "20 segundos por lado", description: "Sente-se na beirada de uma cadeira firme, estenda uma perna com o calcanhar no chão e incline o tronco só um pouco.", cues: ["Mantenha as costas confortáveis e o pé relaxado.", "Troque de lado sem balançar."], tip: "Uma leve sensação de alongamento é suficiente. Não puxe o pé." },
+          { phase: "Finalização", icon: "🌬️", title: "Respire e perceba", duration: "1 minuto", description: "Volte a uma posição confortável e faça algumas respirações lentas. Observe como seu corpo está agora.", cues: ["Relaxe a mandíbula e os ombros.", "Levante-se devagar, caso estivesse sentado."], tip: "Movimento gentil também é treino. Obrigado por reservar esse tempo para você." }
+        ]
+      },
+      cardio: {
+        title: "Energia em movimento",
+        steps: [
+          { phase: "Preparação", icon: "🌿", title: "Comece devagar", duration: "3 minutos", description: "Marche suavemente no lugar ou caminhe pelo espaço para aquecer. Mantenha uma intensidade em que ainda consiga conversar.", cues: ["Use calçados e um espaço seguros.", "Apoie-se numa cadeira firme se precisar de equilíbrio."], tip: "Sem impacto: mantenha sempre um pé no chão." },
+          { phase: "Movimento 1", icon: "🚶", title: "Marcha confortável", duration: "3 minutos", description: "Alterne os pés elevando-os pouco do chão. Balance os braços naturalmente ou segure num apoio estável.", cues: ["Mantenha um ritmo confortável.", "Respire de forma contínua; não prenda o ar."], tip: "Adaptação: faça a marcha sentado, elevando um pé de cada vez." },
+          { phase: "Movimento 2", icon: "↔️", title: "Passos para o lado", duration: "2 minutos", description: "Dê um passo curto para um lado e junte os pés. Repita para o outro lado, sem cruzar as pernas.", cues: ["Mantenha os passos curtos e controlados.", "Fique perto de uma parede ou cadeira se quiser apoio."], tip: "Adaptação: toque um pé para o lado sem transferir todo o peso." },
+          { phase: "Movimento 3", icon: "🦶", title: "Toque alternado à frente", duration: "2 minutos", description: "Toque um pé à frente e volte ao centro. Alterne os lados num ritmo tranquilo.", cues: ["Mantenha o tronco ereto sem rigidez.", "Reduza o alcance se perder o equilíbrio."], tip: "Adaptação: faça sentado, estendendo um pé de cada vez." },
+          { phase: "Finalização", icon: "🌬️", title: "Diminua o ritmo", duration: "3 minutos", description: "Caminhe lentamente e deixe a respiração voltar ao normal. Termine com alguns movimentos leves dos ombros.", cues: ["Não pare de repente se estiver ofegante.", "Descanse e beba água se sentir sede."], tip: "Se a intensidade ficou alta demais, na próxima vez faça pausas mais longas." }
+        ]
+      }
+    };
+    const guideAliases = {
+      "Musculação corpo todo A": "strength",
+      "Treino B · Pernas e glúteos": "gymLower",
+      "Treino C · Peito e costas": "gymUpper",
+      "Mobilidade e alongamento": "mobility",
+      "Alongue e respire": "mobility",
+      "Energia em movimento": "cardio"
+    };
+    let activeGuide = null;
+    let activeGuideStep = 0;
+    let toastTimer;
+
+    function saveState() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      } catch (error) {
+        console.warn("Não foi possível salvar seus dados neste navegador.", error);
+      }
+    }
+
+    function notify(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function showPage(page) {
+      if (!pages.includes(page)) return;
+      document.querySelectorAll(".page").forEach((section) => section.classList.toggle("active", section.id === `page-${page}`));
+      document.querySelectorAll(".nav-button").forEach((button) => button.classList.toggle("active", button.dataset.page === page));
+      document.getElementById("crumb").textContent = labels[page];
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderWater() {
+      document.getElementById("waterCount").textContent = state.water.toFixed(2).replace(".", ",");
+      document.getElementById("waterProgress").style.width = `${Math.min(state.water / 2 * 100, 100)}%`;
+    }
+
+    function renderHabits() {
+      const inputs = document.querySelectorAll("[data-habit]");
+      let completed = 0;
+      inputs.forEach((input) => {
+        input.checked = Boolean(state.habits[input.dataset.habit]);
+        input.closest(".habit").classList.toggle("done", input.checked);
+        if (input.checked) completed += 1;
+      });
+      document.getElementById("habitSummary").textContent = `${completed} de 3 hábitos concluídos`;
+    }
+
+    function renderGuideStep() {
+      const step = activeGuide.steps[activeGuideStep];
+      document.getElementById("guideTitle").textContent = activeGuide.title;
+      document.getElementById("guidePhase").textContent = `${step.phase} · ${step.duration}`;
+      document.getElementById("guideCounter").textContent = `Passo ${activeGuideStep + 1} de ${activeGuide.steps.length}`;
+      document.getElementById("guideProgress").style.width = `${((activeGuideStep + 1) / activeGuide.steps.length) * 100}%`;
+      document.getElementById("guideIcon").textContent = step.icon;
+      document.getElementById("guideStepTitle").textContent = step.title;
+      document.getElementById("guideDescription").textContent = step.description;
+      document.getElementById("guideCues").innerHTML = step.cues.map((cue) => `<div class="guide-cue"><b>✓</b><span>${cue}</span></div>`).join("");
+      document.getElementById("guideTip").innerHTML = `<strong>Dica para adaptar:</strong> ${step.tip}`;
+      document.getElementById("previousStep").disabled = activeGuideStep === 0;
+      document.getElementById("nextStep").textContent = activeGuideStep === activeGuide.steps.length - 1 ? "Concluir treino" : "Próximo passo";
+    }
+
+    function openWorkoutGuide(workoutName) {
+      const guideKey = guideAliases[workoutName];
+      if (!guideKey || !workoutGuides[guideKey]) {
+        notify("Não encontramos o guia deste treino.");
+        return;
+      }
+      activeGuide = workoutGuides[guideKey];
+      activeGuideStep = 0;
+      renderGuideStep();
+      guideDialog.showModal();
+    }
+
+    async function checkAIStatus() {
+      const status = document.getElementById("aiStatus");
+      try {
+        const response = await fetch("/api/status");
+        if (!response.ok) throw new Error("Status indisponível.");
+        const data = await response.json();
+        status.classList.toggle("ready", data.configured);
+        status.textContent = data.configured
+          ? "Chave da IA configurada no servidor. As preferências são enviadas somente para criar esta sugestão."
+          : "Falta configurar OPENAI_API_KEY no servidor local para ativar a IA.";
+      } catch {
+        status.classList.remove("ready");
+        status.textContent = "Servidor local da IA não detectado. Inicie o app com node server.mjs.";
+      }
+    }
+
+    document.querySelectorAll(".nav-button").forEach((button) => button.addEventListener("click", () => showPage(button.dataset.page)));
+    document.querySelectorAll("[data-go]").forEach((button) => button.addEventListener("click", () => showPage(button.dataset.go)));
+    document.querySelectorAll(".start-workout").forEach((button) => button.addEventListener("click", () => openWorkoutGuide(button.dataset.name)));
+    document.getElementById("closeGuide").addEventListener("click", () => guideDialog.close());
+    document.getElementById("previousStep").addEventListener("click", () => {
+      if (activeGuideStep > 0) {
+        activeGuideStep -= 1;
+        renderGuideStep();
+      }
+    });
+    document.getElementById("nextStep").addEventListener("click", () => {
+      if (activeGuideStep < activeGuide.steps.length - 1) {
+        activeGuideStep += 1;
+        renderGuideStep();
+        return;
+      }
+      guideDialog.close();
+      notify(`Treino "${activeGuide.title}" concluído. Parabéns por se movimentar!`);
+    });
+    document.getElementById("addWater").addEventListener("click", () => {
+      state.water = Math.round((state.water + 0.25) * 100) / 100;
+      renderWater();
+      saveState();
+      notify("Hidratação atualizada. Bom trabalho!");
+    });
+    document.querySelectorAll("[data-habit]").forEach((input) => input.addEventListener("change", () => {
+      state.habits[input.dataset.habit] = input.checked;
+      renderHabits();
+      saveState();
+    }));
+    document.getElementById("coachButton").addEventListener("click", () => showPage("progresso"));
+    checkAIStatus();
+    document.getElementById("aiPlanForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = document.getElementById("aiSubmit");
+      const result = document.getElementById("aiResult");
+      const originalLabel = button.textContent.trim();
+      button.disabled = true;
+      button.textContent = "Preparando sua sugestão...";
+      result.classList.remove("error");
+      result.classList.add("visible");
+      result.textContent = "A IA está preparando uma sugestão de treino...";
+      try {
+        const response = await fetch("/api/coach", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            goal: document.getElementById("aiGoal").value,
+            experience: document.getElementById("aiExperience").value,
+            daysPerWeek: Number(document.getElementById("aiDays").value)
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          const messages = {
+            AI_NOT_CONFIGURED: "A chave da OpenAI ainda não foi configurada no servidor. Defina OPENAI_API_KEY e reinicie o app.",
+            RATE_LIMITED: "Muitas solicitações em pouco tempo. Aguarde alguns minutos e tente novamente.",
+            INVALID_INPUT: "Confira as opções selecionadas e tente novamente.",
+            AI_UNAVAILABLE: "A IA está indisponível neste momento. Tente novamente mais tarde."
+          };
+          throw new Error(messages[data.error] || data.message || "Não foi possível gerar a sugestão.");
+        }
+        if (typeof data.plan !== "string" || !data.plan.trim()) {
+          throw new Error("A IA retornou uma resposta vazia. Tente novamente.");
+        }
+        result.textContent = data.plan.trim();
+      } catch (error) {
+        result.classList.add("error");
+        result.textContent = error instanceof TypeError
+          ? "Não foi possível conectar ao servidor local. Inicie o app com `node server.mjs` e tente novamente."
+          : error.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    });
+    document.getElementById("todayDate").textContent = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "numeric", month: "short" }).format(new Date());
+    renderWater();
+    renderHabits();
+  </script>
+</body>
+</html>
